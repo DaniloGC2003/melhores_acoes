@@ -5,10 +5,13 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import csv
 
 service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service)
+stocks_names = []
 stocks_links = []
+stocks_data = []
 
 #driver.get("https://google.com")
 driver.get("https://investidor10.com.br/acoes/")
@@ -23,15 +26,48 @@ for stock in stocks_elements: #get data from all pages
     try:
         title = stock.find_element(By.CLASS_NAME, "actions-title").text
         print(title)
-        link_element = stock.find_element(By.TAG_NAME, "a")
+        #stocks_names.append(title)
+
+        link_element = stock.find_element(By.TAG_NAME, "a")#get URL 
         print(link_element.get_attribute("href"))
-        stocks_links.append(link_element.get_attribute("href"))
+        #stocks_links.append(link_element.get_attribute("href"))
+
+        dict = {
+            "name": title,
+            "URL": link_element.get_attribute("href")
+        }
+        stocks_data.append(dict)
     except:
         print("No title found in this action")
 
 
-for stock in stocks_links:
-    driver.get(stock)
+with open("stocks_data.csv", 'w') as csv_output:
+    csv_writer = csv.writer(csv_output, delimiter=",")
+    fieldnames = ["company", "liquidity"]
+    writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
+    writer.writeheader()
+
+    for stock in stocks_data:
+        liquidity = ""
+        driver.get(stock["URL"])
+        table_info = driver.find_element(By.ID, "table-indicators-company")
+        info_arr = table_info.find_elements(By.CLASS_NAME, "cell")
+
+        #find liquidity
+        for cell in info_arr:
+            if cell.find_element(By.CLASS_NAME, "title").text == "Liquidez Média Diária":
+                liquidity_element = cell.find_element(By.CLASS_NAME, "value")
+                liquidity_detailed = liquidity_element.find_element(By.CLASS_NAME, "detail-value")
+                liquidity = liquidity_detailed.get_attribute("textContent").strip()
+                print(liquidity)
+        writer.writerow({"company": stock["name"], "liquidity": liquidity})
+        pass
+
+
+
+#with open("stocks_data.csv", 'w') as csv_output:
+#    csv_writer = csv.writer(csv_output, delimiter=",")
+    
 
 #input_element.clear()
 #input_element.send_keys("receba" + Keys.ENTER)
