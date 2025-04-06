@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
+
 import time
 import csv
 
@@ -47,7 +49,12 @@ with open("stocks_data.csv", 'w') as csv_output:
     writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
     writer.writeheader()
 
-    for stock in stocks_data:
+
+    for stock in stocks_data:#go through each URL and fill up .csv file
+        #WebDriverWait(driver, 5).until(#idk
+        #    EC.presence_of_element_located((By.ID, "table-indicators-company")),
+        #    #EC.presence_of_element_located((By.CLASS_NAME,"cell"))
+        #)
         liquidity = ""
         driver.get(stock["URL"])
         table_info = driver.find_element(By.ID, "table-indicators-company")
@@ -60,6 +67,16 @@ with open("stocks_data.csv", 'w') as csv_output:
                 liquidity_detailed = liquidity_element.find_element(By.CLASS_NAME, "detail-value")
                 liquidity = liquidity_detailed.get_attribute("textContent").strip()
                 print(liquidity)
+
+        #find profits
+        results_table = driver.find_element(By.ID, "results_table")
+        results_table_values = results_table.find_element(By.NAME, "balance-results-values-view")
+        results_table_values_select = Select(results_table_values)
+        results_table_values_select.select_by_visible_text("Valores Detalhados")
+        table_balance_results = results_table.find_element(By.ID,"table-balance-results")
+        profit = table_balance_results.find_element(By.LINK_TEXT, "Lucro Bruto - (R$)")
+
+
         writer.writerow({"company": stock["name"], "liquidity": liquidity})
         pass
 
