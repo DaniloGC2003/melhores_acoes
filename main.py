@@ -45,7 +45,7 @@ for stock in stocks_elements: #get data from all pages
 
 with open("stocks_data.csv", 'w') as csv_output:
     csv_writer = csv.writer(csv_output, delimiter=",")
-    fieldnames = ["company", "liquidity"]
+    fieldnames = ["company", "liquidity", "profit_last_year", "profit_2y", "profit_3y", "payout"]
     writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
     writer.writeheader()
 
@@ -55,8 +55,16 @@ with open("stocks_data.csv", 'w') as csv_output:
         #    EC.presence_of_element_located((By.ID, "table-indicators-company")),
         #    #EC.presence_of_element_located((By.CLASS_NAME,"cell"))
         #)
+
         liquidity = ""
+        profit_last_year = ""
+        profit_2y = ""
+        profit_3y = ""
+        payout = ""
+
         driver.get(stock["URL"])
+        name_company = driver.find_element(By.CLASS_NAME, "name-company")
+        print(name_company.get_attribute("textContent"))
         table_info = driver.find_element(By.ID, "table-indicators-company")
         info_arr = table_info.find_elements(By.CLASS_NAME, "cell")
 
@@ -66,18 +74,57 @@ with open("stocks_data.csv", 'w') as csv_output:
                 liquidity_element = cell.find_element(By.CLASS_NAME, "value")
                 liquidity_detailed = liquidity_element.find_element(By.CLASS_NAME, "detail-value")
                 liquidity = liquidity_detailed.get_attribute("textContent").strip()
+                print("liquidity: ", end='')
                 print(liquidity)
 
         #find profits
         results_table = driver.find_element(By.ID, "results_table")
-        results_table_values = results_table.find_element(By.NAME, "balance-results-values-view")
-        results_table_values_select = Select(results_table_values)
-        results_table_values_select.select_by_visible_text("Valores Detalhados")
         table_balance_results = results_table.find_element(By.ID,"table-balance-results")
-        profit = table_balance_results.find_element(By.LINK_TEXT, "Lucro Bruto - (R$)")
+        table_balance_results_tbody = table_balance_results.find_element(By.XPATH, "./*")
+        table_balance_results_tbody_lines = table_balance_results_tbody.find_elements(By.XPATH, "./*")
+        for item in table_balance_results_tbody_lines:
+            values = item.find_elements(By.CLASS_NAME, "column-value")
+            if (values[0].text == "Lucro Bruto - (R$)"):
+                profit_last_year_el = values[2].find_element(By.CLASS_NAME, "detail-value")
+                profit_last_year = profit_last_year_el.get_attribute("textContent")
+                print("profit last year: ", end='')
+                print(profit_last_year)
+
+                profit_2y_el = values[3].find_element(By.CLASS_NAME, "detail-value")
+                profit_2y = profit_2y_el.get_attribute("textContent")
+                print("profit 2 years ago: ", end='')
+                print(profit_2y)
+
+                profit_3y_el = values[4].find_element(By.CLASS_NAME, "detail-value")
+                profit_3y = profit_3y_el.get_attribute("textContent")
+                print("profit 3 years ago: ", end='')
+                print(profit_3y)
+
+        #find payout
+        table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
+        print(table_indicators_history.get_attribute("outerHTML"))#maybe wait for table to load
+        table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
+        table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
+        table_indicators_history_tbody_lines.pop(0)
+        for item in table_indicators_history_tbody_lines:
+            #print(item.get_attribute("outerHTML"))
+            indicator = item.find_element(By.CLASS_NAME, "indicator")
+            #print(indicator.get_attribute("textContent"))
+
+            if "PAYOUT" in indicator.get_attribute("textContent"):
+                print("look at ya")
+                payout_values = item.find_elements(By.CLASS_NAME, "value")
+                payout = payout_values[0].get_attribute("textContent")
+                print(payout)
 
 
-        writer.writerow({"company": stock["name"], "liquidity": liquidity})
+
+        writer.writerow({"company": stock["name"], 
+                         "liquidity": liquidity, 
+                         "profit_last_year": profit_last_year, 
+                         "profit_2y": profit_2y, 
+                         "profit_3y": profit_3y,
+                         "payout": payout})
         pass
 
 
