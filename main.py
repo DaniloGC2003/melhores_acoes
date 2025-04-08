@@ -81,81 +81,97 @@ with open("stocks_data.csv", 'w') as csv_output:
         profit_2y = ""
         profit_3y = ""
         payout = ""
+        year_beginning = 0
 
         driver.get(stock["URL"])
         time.sleep(3)
+
+
 
         name_company = driver.find_element(By.CLASS_NAME, "name-company")
         print(name_company.get_attribute("textContent"))
         table_info = driver.find_element(By.ID, "table-indicators-company")
         info_arr = table_info.find_elements(By.CLASS_NAME, "cell")
 
-        #find liquidity
-        for cell in info_arr:
-            if cell.find_element(By.CLASS_NAME, "title").text == "Liquidez Média Diária":
-                liquidity_element = cell.find_element(By.CLASS_NAME, "value")
-                liquidity_detailed = liquidity_element.find_element(By.CLASS_NAME, "detail-value")
-                liquidity = liquidity_detailed.get_attribute("textContent").strip()
-                print("liquidity: ", end='')
-                print(liquidity)
 
-        #find profits
-        WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.ID,"results_table"))
-        ) 
-        results_table = driver.find_element(By.ID, "results_table")
-        table_balance_results = results_table.find_element(By.ID,"table-balance-results")
-        table_balance_results_tbody = table_balance_results.find_element(By.XPATH, "./*")
-        table_balance_results_tbody_lines = table_balance_results_tbody.find_elements(By.XPATH, "./*")
-        for item in table_balance_results_tbody_lines:
-            values = item.find_elements(By.CLASS_NAME, "column-value")
-            if (values[0].text == "Lucro Bruto - (R$)"):
-                profit_last_year_el = values[2].find_element(By.CLASS_NAME, "detail-value")
-                profit_last_year = profit_last_year_el.get_attribute("textContent")
-                print("profit last year: ", end='')
-                print(profit_last_year)
+        basic_info = driver.find_element(By.CLASS_NAME, "basic_info")
+        basic_info_table = basic_info.find_element(By.XPATH, "./*")
+        basic_info_tbody = basic_info_table.find_element(By.XPATH, "./*")
+        infos = basic_info_tbody.find_elements(By.XPATH, "./*")
+        for item in infos:
+            data = item.find_elements(By.XPATH, "./*")
+            if data[0].get_attribute("textContent") == "Ano de estreia na bolsa:":
+                year_beginning = int(data[1].get_attribute("textContent"))
+                print("estreia na bolsa: ", end='')
+                print(year_beginning)
+                
 
-                profit_2y_el = values[3].find_element(By.CLASS_NAME, "detail-value")
-                profit_2y = profit_2y_el.get_attribute("textContent")
-                print("profit 2 years ago: ", end='')
-                print(profit_2y)
+        if year_beginning < 2020:
+            #find liquidity
+            for cell in info_arr:
+                if cell.find_element(By.CLASS_NAME, "title").text == "Liquidez Média Diária":
+                    liquidity_element = cell.find_element(By.CLASS_NAME, "value")
+                    liquidity_detailed = liquidity_element.find_element(By.CLASS_NAME, "detail-value")
+                    liquidity = liquidity_detailed.get_attribute("textContent").strip()
+                    print("liquidity: ", end='')
+                    print(liquidity)
 
-                profit_3y_el = values[4].find_element(By.CLASS_NAME, "detail-value")
-                profit_3y = profit_3y_el.get_attribute("textContent")
-                print("profit 3 years ago: ", end='')
-                print(profit_3y)
+            #find profits
+            WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.ID,"results_table"))
+            ) 
+            results_table = driver.find_element(By.ID, "results_table")
+            table_balance_results = results_table.find_element(By.ID,"table-balance-results")
+            table_balance_results_tbody = table_balance_results.find_element(By.XPATH, "./*")
+            table_balance_results_tbody_lines = table_balance_results_tbody.find_elements(By.XPATH, "./*")
+            for item in table_balance_results_tbody_lines:
+                values = item.find_elements(By.CLASS_NAME, "column-value")
+                if (values[0].text == "Lucro Bruto - (R$)"):
+                    profit_last_year_el = values[2].find_element(By.CLASS_NAME, "detail-value")
+                    profit_last_year = profit_last_year_el.get_attribute("textContent")
+                    print("profit last year: ", end='')
+                    print(profit_last_year)
 
-        #find payout
-        WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.ID,"table-indicators-history"))
-        )   
-        table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
-        #print(table_indicators_history.get_attribute("outerHTML"))#maybe wait for table to load
-        table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
-        table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
-        table_indicators_history_tbody_lines.pop(0)
-        for item in table_indicators_history_tbody_lines:
-            #print(item.get_attribute("outerHTML"))
-            indicator = item.find_element(By.CLASS_NAME, "indicator")
-            #print(indicator.get_attribute("textContent"))
+                    profit_2y_el = values[3].find_element(By.CLASS_NAME, "detail-value")
+                    profit_2y = profit_2y_el.get_attribute("textContent")
+                    print("profit 2 years ago: ", end='')
+                    print(profit_2y)
 
-            if "PAYOUT" in indicator.get_attribute("textContent"):
-                #print("look at ya")
-                payout_values = item.find_elements(By.CLASS_NAME, "value")
-                payout = payout_values[0].get_attribute("textContent")
-                print(payout)
+                    profit_3y_el = values[4].find_element(By.CLASS_NAME, "detail-value")
+                    profit_3y = profit_3y_el.get_attribute("textContent")
+                    print("profit 3 years ago: ", end='')
+                    print(profit_3y)
+
+            #find payout
+            WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.ID,"table-indicators-history"))
+            )   
+            table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
+            #print(table_indicators_history.get_attribute("outerHTML"))#maybe wait for table to load
+            table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
+            table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
+            table_indicators_history_tbody_lines.pop(0)
+            for item in table_indicators_history_tbody_lines:
+                #print(item.get_attribute("outerHTML"))
+                indicator = item.find_element(By.CLASS_NAME, "indicator")
+                #print(indicator.get_attribute("textContent"))
+
+                if "PAYOUT" in indicator.get_attribute("textContent"):
+                    #print("look at ya")
+                    payout_values = item.find_elements(By.CLASS_NAME, "value")
+                    payout = payout_values[0].get_attribute("textContent")
+                    print(payout)
 
 
-        #remove "R$ " substring from liquidity
-        liquidity = liquidity[3:]
-        print(liquidity)
-        writer.writerow({"company": stock["name"], 
-                         "liquidity": liquidity, 
-                         "profit_last_year": profit_last_year, 
-                         "profit_2y": profit_2y, 
-                         "profit_3y": profit_3y,
-                         "payout": payout})
-        pass
+            #remove "R$ " substring from liquidity
+            liquidity = liquidity[3:]
+            print(liquidity)
+            writer.writerow({"company": stock["name"], 
+                            "liquidity": liquidity, 
+                            "profit_last_year": profit_last_year, 
+                            "profit_2y": profit_2y, 
+                            "profit_3y": profit_3y,
+                            "payout": payout})
 
 
 
