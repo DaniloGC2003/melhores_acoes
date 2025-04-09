@@ -1,0 +1,21 @@
+divida liquida / EBITDA:
+    < 0: sem dívida
+    ROE (lucro liquido de 12 meses / patrimonio liquido)
+
+    > 0: com dívida:
+    ROIC (geração de caixa / capital total) 
+
+    ROE ou ROIC > 15%
+
+
+P/L: para empresa sem dívida.  preço atual / lucro por ação
+Emppresa com dívida: EV/EBIT
+CAGR
+    CAGR > P/L ou CAGR > EV/EBIT
+
+
+dívida líoquida / EBITDA
+    alto: acima de 3
+
+
+payout
