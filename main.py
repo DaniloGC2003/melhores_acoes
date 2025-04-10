@@ -67,7 +67,7 @@ while get_next_URL:
 
 with open("stocks_data.csv", 'w') as csv_output:
     csv_writer = csv.writer(csv_output, delimiter=",")
-    fieldnames = ["company", "liquidity", "profit_last_year", "profit_2y", "profit_3y", "payout"]
+    fieldnames = ["company", "liquidity", "profit_last_year", "profit_2y", "profit_3y", "payout", "divida_EBITDA", "roe", "roic", "pl", "ev_ebit", "cagr"]
     writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
     writer.writeheader()
 
@@ -81,6 +81,12 @@ with open("stocks_data.csv", 'w') as csv_output:
         profit_3y = ""
         payout = ""
         year_beginning = 0
+        debt_EBITDA = '-'
+        roe = '-'
+        roic = '-'
+        pl = '-'
+        ev_ebit = '-'
+        cagr = '-'
 
         driver.get(stock["URL"])
         time.sleep(3)
@@ -100,6 +106,9 @@ with open("stocks_data.csv", 'w') as csv_output:
             ) 
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"table-indicators-history"))
+            )  
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.ID,"table-indicators"))
             )  
         except TimeoutException:
             print("at least one element not found by the driver")
@@ -167,7 +176,6 @@ with open("stocks_data.csv", 'w') as csv_output:
                         print(profit_3y)
 
                 #find payout
-                
                 table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
                 #print(table_indicators_history.get_attribute("outerHTML"))#maybe wait for table to load
                 table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
@@ -179,21 +187,59 @@ with open("stocks_data.csv", 'w') as csv_output:
                     #print(indicator.get_attribute("textContent"))
 
                     if "PAYOUT" in indicator.get_attribute("textContent"):
-                        #print("look at ya")
                         payout_values = item.find_elements(By.CLASS_NAME, "value")
                         payout = payout_values[0].get_attribute("textContent")
+                        print("payout: ", end='')
                         print(payout)
+                
+                #find indicators
+                fundamentalist_indicators = driver.find_element(By.ID, "table-indicators")
+                fundamentalist_indicators_cells = fundamentalist_indicators.find_elements(By.CLASS_NAME, "cell")
+                for item in fundamentalist_indicators_cells:
+                    cell_fields = item.find_elements(By.XPATH, "./*")
+                    if cell_fields[0].get_attribute("textContent") == "DÍVIDA LÍQUIDA / EBITDA ":
+                        debt_EBITDA = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('\n','')
+                        print("divida liquida/EBITDA: ",end='')
+                        print(debt_EBITDA)
+                    elif cell_fields[0].get_attribute("textContent") == "ROE ":
+                        roe = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("ROE: ",end='')
+                        print(roe)
+                    elif cell_fields[0].get_attribute("textContent") == "ROIC ":
+                        roic = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("ROIC : ",end='')
+                        print(roic)
+                    elif cell_fields[0].get_attribute("textContent") == "P/L ":
+                        pl = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("PL : ",end='')
+                        print(pl)
+                    elif cell_fields[0].get_attribute("textContent") == "EV/EBIT ":
+                        ev_ebit = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("EV/EBIT: ",end='')
+                        print(ev_ebit)
+                    elif cell_fields[0].get_attribute("textContent") == "CAGR LUCROS 5 ANOS ":
+                        cagr = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("CAGR profits 5 years: ",end='')
+                        print(cagr)
+
 
 
                 #remove "R$ " substring from liquidity
                 liquidity = liquidity[3:]
-                print(liquidity)
+                #print(liquidity)
                 writer.writerow({"company": stock["name"], 
                                 "liquidity": liquidity, 
                                 "profit_last_year": profit_last_year, 
                                 "profit_2y": profit_2y, 
                                 "profit_3y": profit_3y,
-                                "payout": payout})
+                                "payout": payout,
+                                "divida_EBITDA": debt_EBITDA,
+                                "roe": roe,
+                                "roic": roic, 
+                                "pl": pl, 
+                                "ev_ebit": ev_ebit, 
+                                "cagr": cagr
+                                })
 
 
 

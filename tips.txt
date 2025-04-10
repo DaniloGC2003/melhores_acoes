@@ -8,13 +8,14 @@ divida liquida / EBITDA:
     ROE ou ROIC > 15%
 
 
-P/L: para empresa sem dívida.  preço atual / lucro por ação
-Emppresa com dívida: EV/EBIT
-CAGR
+P/L: para empresa sem dívida.  preço atual / lucro por ação por ano. Dá uma ideia se empresa está cara. "Em quantos anos os luros de uma ação compram uma ação"
+Empresa com dívida: EV/EBIT
+
+CAGR: tipo de taxa de crescimento de lucros
     CAGR > P/L ou CAGR > EV/EBIT
 
 
-dívida líoquida / EBITDA
+dívida líquida / EBITDA "alavancagem financeira/dívida"
     alto: acima de 3
 
 
