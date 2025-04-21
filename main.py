@@ -18,7 +18,7 @@ stocks_data = []
 
 current_page_stocks = "https://investidor10.com.br/acoes/"
 
-
+#Find URLs for all stocks
 get_next_URL = True
 while get_next_URL:
     print("PÁGINA: ")
@@ -64,10 +64,15 @@ while get_next_URL:
     #pagination_item_next_link = pagination_item_next.find_element(By.CLASS_NAME, "pagination-link").get_attribute("href")
     #print(pagination_item_next_link)
 
-
+'''stocks_data = [
+    {
+                "name": "oi",
+                "URL": "https://investidor10.com.br/acoes/bsli3/"
+            }
+]'''
 with open("stocks_data.csv", 'w') as csv_output:
     csv_writer = csv.writer(csv_output, delimiter=",")
-    fieldnames = ["company", "liquidity", "profit_last_year", "profit_2y", "profit_3y", "payout", "divida_EBITDA", "roe", "roic", "pl", "ev_ebit", "cagr"]
+    fieldnames = ["company", "liquidity", "sector", "segment", "profit_last_year", "profit_2y", "profit_3y", "payout", "divida_EBITDA", "roe", "roic", "pl", "ev_ebit", "cagr", "pvp", "dy"]
     writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
     writer.writeheader()
 
@@ -75,11 +80,13 @@ with open("stocks_data.csv", 'w') as csv_output:
     for stock in stocks_data:#go through each URL and fill up .csv file
         skip_stock = False
 
-        liquidity = ""
-        profit_last_year = ""
-        profit_2y = ""
-        profit_3y = ""
-        payout = ""
+        liquidity = "-"
+        sector = "-"
+        segment = "-"
+        profit_last_year = "-"
+        profit_2y = "-"
+        profit_3y = "-"
+        payout = "-"
         year_beginning = 0
         debt_EBITDA = '-'
         roe = '-'
@@ -87,6 +94,8 @@ with open("stocks_data.csv", 'w') as csv_output:
         pl = '-'
         ev_ebit = '-'
         cagr = '-'
+        pvp = '-'
+        dy = '-'
 
         driver.get(stock["URL"])
         time.sleep(3)
@@ -150,34 +159,47 @@ with open("stocks_data.csv", 'w') as csv_output:
                         liquidity = liquidity_detailed.get_attribute("textContent").strip()
                         print("liquidity: ", end='')
                         print(liquidity)
+                    elif cell.find_element(By.CLASS_NAME, "title").text == "Setor":
+                        sector_element = cell.find_element(By.CLASS_NAME, "value")
+                        sector = sector_element.get_attribute("textContent").strip()
+                        print("sector: ", end='')
+                        print(sector)
+                    elif cell.find_element(By.CLASS_NAME, "title").text == "Segmento":
+                        segment_element = cell.find_element(By.CLASS_NAME, "value")
+                        segment = segment_element.get_attribute("textContent").strip()
+                        print("segment: ", end='')
+                        print(segment)
 
                 #find profits
-                
                 results_table = driver.find_element(By.ID, "results_table")
                 table_balance_results = results_table.find_element(By.ID,"table-balance-results")
-                table_balance_results_tbody = table_balance_results.find_element(By.XPATH, "./*")
-                table_balance_results_tbody_lines = table_balance_results_tbody.find_elements(By.XPATH, "./*")
-                for item in table_balance_results_tbody_lines:
-                    values = item.find_elements(By.CLASS_NAME, "column-value")
-                    if (values[0].text == "Lucro Bruto - (R$)"):
-                        profit_last_year_el = values[2].find_element(By.CLASS_NAME, "detail-value")
-                        profit_last_year = profit_last_year_el.get_attribute("textContent")
-                        print("profit last year: ", end='')
-                        print(profit_last_year)
+                table_balance_results_tbody_list = table_balance_results.find_elements(By.XPATH, "./*")
+                if table_balance_results_tbody_list:
+                    table_balance_results_tbody = table_balance_results_tbody_list[0]
+                    table_balance_results_tbody_lines = table_balance_results_tbody.find_elements(By.XPATH, "./*")
+                    for item in table_balance_results_tbody_lines:
+                        values = item.find_elements(By.CLASS_NAME, "column-value")
+                        if (values[0].text == "Lucro Bruto - (R$)"):
+                            profit_last_year_el = values[2].find_element(By.CLASS_NAME, "detail-value")
+                            profit_last_year = profit_last_year_el.get_attribute("textContent")
+                            print("profit last year: ", end='')
+                            print(profit_last_year)
 
-                        profit_2y_el = values[3].find_element(By.CLASS_NAME, "detail-value")
-                        profit_2y = profit_2y_el.get_attribute("textContent")
-                        print("profit 2 years ago: ", end='')
-                        print(profit_2y)
+                            profit_2y_el = values[3].find_element(By.CLASS_NAME, "detail-value")
+                            profit_2y = profit_2y_el.get_attribute("textContent")
+                            print("profit 2 years ago: ", end='')
+                            print(profit_2y)
 
-                        profit_3y_el = values[4].find_element(By.CLASS_NAME, "detail-value")
-                        profit_3y = profit_3y_el.get_attribute("textContent")
-                        print("profit 3 years ago: ", end='')
-                        print(profit_3y)
+                            profit_3y_el = values[4].find_element(By.CLASS_NAME, "detail-value")
+                            profit_3y = profit_3y_el.get_attribute("textContent")
+                            print("profit 3 years ago: ", end='')
+                            print(profit_3y)
+                else:
+                    print ("no")
+
 
                 #find payout
                 table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
-                #print(table_indicators_history.get_attribute("outerHTML"))#maybe wait for table to load
                 table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
                 table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
                 table_indicators_history_tbody_lines.pop(0)
@@ -221,14 +243,23 @@ with open("stocks_data.csv", 'w') as csv_output:
                         cagr = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("CAGR profits 5 years: ",end='')
                         print(cagr)
+                    elif cell_fields[0].get_attribute("textContent") == "P/VP ":
+                        pvp = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("P/VP: ",end='')
+                        print(pvp)
+                    elif "DIVIDEND YIELD" in cell_fields[0].get_attribute("textContent"):
+                        dy = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("DY: ",end='')
+                        print(dy)
 
 
 
                 #remove "R$ " substring from liquidity
                 liquidity = liquidity[3:]
-                #print(liquidity)
                 writer.writerow({"company": stock["name"], 
                                 "liquidity": liquidity, 
+                                "sector": sector,
+                                "segment": segment,
                                 "profit_last_year": profit_last_year, 
                                 "profit_2y": profit_2y, 
                                 "profit_3y": profit_3y,
@@ -238,7 +269,9 @@ with open("stocks_data.csv", 'w') as csv_output:
                                 "roic": roic, 
                                 "pl": pl, 
                                 "ev_ebit": ev_ebit, 
-                                "cagr": cagr
+                                "cagr": cagr,
+                                "pvp": pvp,
+                                "dy": dy
                                 })
 
 
@@ -251,6 +284,6 @@ with open("stocks_data.csv", 'w') as csv_output:
 #input_element.send_keys("receba" + Keys.ENTER)
 print()
 print("end")
-time.sleep(100)
+time.sleep(3)
 
 driver.quit()

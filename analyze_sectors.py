@@ -1,6 +1,19 @@
 import csv
-#analizar bancos diferentemente
+
+sorted_rows = []
+reader = []
+
 with open("stocks_data.csv", 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
+    rows = list(reader)
+    sorted_rows = sorted(rows, key=lambda row: (row['sector'], row['segment']))
+
+with open("stocks_data_segment.csv", 'w', newline='') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
+    writer.writeheader()
+    writer.writerows(sorted_rows)
+
+with open("stocks_data_segment.csv", 'r') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         try:
@@ -25,12 +38,6 @@ with open("stocks_data.csv", 'r') as csvfile:
             else:
                 payout = "no payout"
 
-            '''if liquidity > 3_000_000:
-                if profit_last_year > 0 and profit_2y > 0 and profit_3y > 0:
-                    if payout != "no payout":
-                        if payout >= 30.00 and payout <= 500:
-                            #if debt_EBITDA < 3:
-                                print(row)'''
             if liquidity > 3_000_000:
                 if profit_last_year > profit_2y and profit_2y > profit_3y:
                     if payout != "no payout":
@@ -43,16 +50,6 @@ with open("stocks_data.csv", 'r') as csvfile:
                                 if roic > 15:
                                     if cagr > ev_ebit:
                                         print(row)
-            '''if debt_EBITDA < 0:
-                if roe > 15:
-                    if cagr > pl:
-                        print(row)
-            elif debt_EBITDA < 3:
-                if roic > 15:
-                    if cagr > ev_ebit:
-                        print(row)'''
-            
-
         except ValueError:
             # Skip rows with invalid numbers
             continue

@@ -1,0 +1,29 @@
+P/L
+- Preço da ação / lucro por ação
+- menor, melhor
+
+P/VP
+- Preço da ação / valor patrimonial por ação
+- menor, melhor
+
+Dividend Yield
+- Dividendos por ação / preço da ação
+- maior, melhor
+
+Return on equity (ROE)
+- retorno sobre patrimônio líquido
+- maior, melhor
+-  lucro líquido / patrimônio líquido
+
+Dívida líquida / EBITDA
+- Dívida líquida: dívida bruta - caixa (menor, melhor)
+- EBITDA: lucro operacional
+- menor, melhor (pode inclusive ser negativo)
+- Dívida pode ser quitada em DIVIDA LIQUIDA/EBITDA anos
+- Recomendado menor que 3
+
+CAGR lucro
+- Taxa de crescimento anual composta do lucro líquido de uma empresa
+- Empresa cresceu em média CAGR% ao anos
+
+Resolução CVM 44
