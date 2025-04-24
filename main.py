@@ -202,39 +202,39 @@ with open("stocks_data.csv", 'w') as csv_output:
                 for item in fundamentalist_indicators_cells:
                     cell_fields = item.find_elements(By.XPATH, "./*")
                     if cell_fields[0].get_attribute("textContent") == "DÍVIDA LÍQUIDA / EBITDA ":
-                        debt_EBITDA = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        debt_EBITDA = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("divida liquida/EBITDA: ",end='')
                         print(debt_EBITDA)
                     elif cell_fields[0].get_attribute("textContent") == "PAYOUT ":
-                        payout = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        payout = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("Payout: ",end='')
                         print(payout)
                     elif cell_fields[0].get_attribute("textContent") == "ROE ":
-                        roe = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        roe = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("ROE: ",end='')
                         print(roe)
                     elif cell_fields[0].get_attribute("textContent") == "ROIC ":
-                        roic = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        roic = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("ROIC : ",end='')
                         print(roic)
                     elif cell_fields[0].get_attribute("textContent") == "P/L ":
-                        pl = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        pl = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("PL : ",end='')
                         print(pl)
                     elif cell_fields[0].get_attribute("textContent") == "EV/EBIT ":
-                        ev_ebit = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        ev_ebit = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("EV/EBIT: ",end='')
                         print(ev_ebit)
                     elif cell_fields[0].get_attribute("textContent") == "CAGR LUCROS 5 ANOS ":
-                        cagr = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        cagr = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("CAGR profits 5 years: ",end='')
                         print(cagr)
                     elif cell_fields[0].get_attribute("textContent") == "P/VP ":
-                        pvp = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        pvp = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("P/VP: ",end='')
                         print(pvp)
                     elif "DIVIDEND YIELD" in cell_fields[0].get_attribute("textContent"):
-                        dy = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        dy = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("DY: ",end='')
                         print(dy)
 
