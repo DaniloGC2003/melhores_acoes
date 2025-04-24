@@ -10,6 +10,9 @@ from selenium.common.exceptions import TimeoutException
 import time
 import csv
 
+
+LIMIT_YEAR = 2020
+
 service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service)
 stocks_names = []
@@ -29,16 +32,11 @@ while get_next_URL:
     )
 
     stocks_elements = driver.find_elements(By.CLASS_NAME,"actions")
-    #print(input_element)
     for stock in stocks_elements: #get data from all pages
         try:
             title = stock.find_element(By.CLASS_NAME, "actions-title").text
-            #print(title)
-            #stocks_names.append(title)
 
             link_element = stock.find_element(By.TAG_NAME, "a")#get URL 
-            #print(link_element.get_attribute("href"))
-            #stocks_links.append(link_element.get_attribute("href"))
 
             dict = {
                 "name": title,
@@ -51,25 +49,12 @@ while get_next_URL:
         EC.presence_of_element_located((By.CLASS_NAME,"section-sectors-pagination"))
     )
     pagination_item_next = driver.find_element(By.CLASS_NAME, "section-sectors-pagination")
-    #print(pagination_item_next.get_attribute("outerHTML"))
-    #/html/body/div[3]/main/div[2]/section/div/div/div[5]
-    #/html/body/div[3]/main/div[2]/section/div/div/div[5]/nav/ul/li[11]
+
     old_page_stocks = current_page_stocks
     current_page_stocks = pagination_item_next.find_element(By.XPATH, "./nav/ul/li[11]").find_element(By.CLASS_NAME, "pagination-link").get_attribute("href")
     if old_page_stocks == current_page_stocks or old_page_stocks + "#" == current_page_stocks:
         get_next_URL = False
 
-    #time.sleep(3)
-    
-    #pagination_item_next_link = pagination_item_next.find_element(By.CLASS_NAME, "pagination-link").get_attribute("href")
-    #print(pagination_item_next_link)
-
-'''stocks_data = [
-    {
-                "name": "oi",
-                "URL": "https://investidor10.com.br/acoes/bsli3/"
-            }
-]'''
 with open("stocks_data.csv", 'w') as csv_output:
     csv_writer = csv.writer(csv_output, delimiter=",")
     fieldnames = ["company", "liquidity", "sector", "segment", "profit_last_year", "profit_2y", "profit_3y", "payout", "divida_EBITDA", "roe", "roic", "pl", "ev_ebit", "cagr", "pvp", "dy"]
@@ -98,7 +83,6 @@ with open("stocks_data.csv", 'w') as csv_output:
         dy = '-'
 
         driver.get(stock["URL"])
-        time.sleep(3)
 
         try:
             WebDriverWait(driver, 30).until(
@@ -113,9 +97,9 @@ with open("stocks_data.csv", 'w') as csv_output:
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"results_table"))
             ) 
-            WebDriverWait(driver, 30).until(
+            '''WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"table-indicators-history"))
-            )  
+            ) ''' 
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"table-indicators"))
             )  
@@ -129,9 +113,6 @@ with open("stocks_data.csv", 'w') as csv_output:
             print(stock["URL"])
             table_info = driver.find_element(By.ID, "table-indicators-company")
             info_arr = table_info.find_elements(By.CLASS_NAME, "cell")
-
-
-            
 
             basic_info = driver.find_element(By.CLASS_NAME, "basic_info")
             basic_info_table = basic_info.find_element(By.XPATH, "./*")
@@ -150,13 +131,16 @@ with open("stocks_data.csv", 'w') as csv_output:
                     print(year_beginning)
                     
 
-            if year_beginning < 2020:
-                #find liquidity
+            #filter out companies before 
+            if year_beginning < LIMIT_YEAR:
+                #find liquidity, sector and segment
                 for cell in info_arr:
                     if cell.find_element(By.CLASS_NAME, "title").text == "Liquidez Média Diária":
                         liquidity_element = cell.find_element(By.CLASS_NAME, "value")
                         liquidity_detailed = liquidity_element.find_element(By.CLASS_NAME, "detail-value")
                         liquidity = liquidity_detailed.get_attribute("textContent").strip()
+                        #remove "R$ " substring from liquidity
+                        liquidity = liquidity[3:]
                         print("liquidity: ", end='')
                         print(liquidity)
                     elif cell.find_element(By.CLASS_NAME, "title").text == "Setor":
@@ -199,20 +183,18 @@ with open("stocks_data.csv", 'w') as csv_output:
 
 
                 #find payout
-                table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
+                '''table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
                 table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
                 table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
                 table_indicators_history_tbody_lines.pop(0)
                 for item in table_indicators_history_tbody_lines:
-                    #print(item.get_attribute("outerHTML"))
                     indicator = item.find_element(By.CLASS_NAME, "indicator")
-                    #print(indicator.get_attribute("textContent"))
 
                     if "PAYOUT" in indicator.get_attribute("textContent"):
                         payout_values = item.find_elements(By.CLASS_NAME, "value")
                         payout = payout_values[0].get_attribute("textContent")
                         print("payout: ", end='')
-                        print(payout)
+                        print(payout)'''
                 
                 #find indicators
                 fundamentalist_indicators = driver.find_element(By.ID, "table-indicators")
@@ -220,42 +202,45 @@ with open("stocks_data.csv", 'w') as csv_output:
                 for item in fundamentalist_indicators_cells:
                     cell_fields = item.find_elements(By.XPATH, "./*")
                     if cell_fields[0].get_attribute("textContent") == "DÍVIDA LÍQUIDA / EBITDA ":
-                        debt_EBITDA = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('\n','')
+                        debt_EBITDA = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("divida liquida/EBITDA: ",end='')
                         print(debt_EBITDA)
+                    elif cell_fields[0].get_attribute("textContent") == "PAYOUT ":
+                        payout = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("Payout: ",end='')
+                        print(payout)
                     elif cell_fields[0].get_attribute("textContent") == "ROE ":
-                        roe = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        roe = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("ROE: ",end='')
                         print(roe)
                     elif cell_fields[0].get_attribute("textContent") == "ROIC ":
-                        roic = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        roic = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("ROIC : ",end='')
                         print(roic)
                     elif cell_fields[0].get_attribute("textContent") == "P/L ":
-                        pl = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        pl = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("PL : ",end='')
                         print(pl)
                     elif cell_fields[0].get_attribute("textContent") == "EV/EBIT ":
-                        ev_ebit = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        ev_ebit = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("EV/EBIT: ",end='')
                         print(ev_ebit)
                     elif cell_fields[0].get_attribute("textContent") == "CAGR LUCROS 5 ANOS ":
-                        cagr = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        cagr = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("CAGR profits 5 years: ",end='')
                         print(cagr)
                     elif cell_fields[0].get_attribute("textContent") == "P/VP ":
-                        pvp = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        pvp = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("P/VP: ",end='')
                         print(pvp)
                     elif "DIVIDEND YIELD" in cell_fields[0].get_attribute("textContent"):
-                        dy = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        dy = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', 'TEMP').replace(',', '.').replace('TEMP', ',').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("DY: ",end='')
                         print(dy)
 
 
 
-                #remove "R$ " substring from liquidity
-                liquidity = liquidity[3:]
+
                 writer.writerow({"company": stock["name"], 
                                 "liquidity": liquidity, 
                                 "sector": sector,
@@ -274,14 +259,6 @@ with open("stocks_data.csv", 'w') as csv_output:
                                 "dy": dy
                                 })
 
-
-
-#with open("stocks_data.csv", 'w') as csv_output:
-#    csv_writer = csv.writer(csv_output, delimiter=",")
-    
-
-#input_element.clear()
-#input_element.send_keys("receba" + Keys.ENTER)
 print()
 print("end")
 time.sleep(3)

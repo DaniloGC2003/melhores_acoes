@@ -1,13 +1,17 @@
 import csv
 
+NO_DATA = -999999
+
 sorted_rows = []
 reader = []
 
+#read data from output file and sort by sector and segment
 with open("stocks_data.csv", 'r') as csvfile:
     reader = csv.DictReader(csvfile)
     rows = list(reader)
     sorted_rows = sorted(rows, key=lambda row: (row['sector'], row['segment']))
 
+#store sorted data
 with open("stocks_data_segment.csv", 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
     writer.writeheader()
@@ -15,41 +19,54 @@ with open("stocks_data_segment.csv", 'w', newline='') as csvfile:
 
 with open("stocks_data_segment.csv", 'r') as csvfile:
     reader = csv.DictReader(csvfile)
-    for row in reader:
+    rows = list(reader)
+    current_stocks = []
+    current_segment = rows[0]['segment']
+    for row in rows:
         try:
-            liquidity = float(row["liquidity"].replace('.', ''))
-            profit_last_year = float(row["profit_last_year"].replace('.', ''))
-            profit_2y = float(row["profit_2y"].replace('.', ''))
-            profit_3y = float(row["profit_3y"].replace('.', ''))
-            debt_EBITDA = float(row["divida_EBITDA"].replace('.', ''))
-            roe = float(row["roe"].replace('.', ''))
-            roic = float(row["roic"].replace('.', ''))
-            pl = float(row["pl"].replace('.', ''))
-            ev_ebit = float(row["ev_ebit"].replace('.', ''))
-            cagr = float(row["cagr"].replace('.', ''))
-
-
-            payout = 0
-            payout_str = row["payout"]
-            #print(payout_str)
-            if payout_str != '-':
-                payout = float(row["payout"].replace(',','.')[:-1])
-                #print(payout)
+            #current_segment = row['segment']
+            #print(row)
+            #while row['segment'] == current_segment:
+            if row['segment'] == current_segment:
+                current_stocks.append(row)
+                #print(row['segment'])
             else:
-                payout = "no payout"
+                print(current_segment)
+                #max_score = len(current_stocks)
+                pl_arr = []
+                pvp_arr = []
+                roe_arr = []
+                debt_EBITDA_arr = []
+                cagr_arr = []
+                for item in current_stocks:
+                    #print(item['company'])
+                    pl_arr.append(item['pl'])
+                    pvp_arr.append(item['pvp'])
+                    roe_arr.append(item['roe'])
+                    debt_EBITDA_arr.append(item['divida_EBITDA'])
+                    cagr_arr.append(item['cagr'])
 
-            if liquidity > 3_000_000:
-                if profit_last_year > profit_2y and profit_2y > profit_3y:
-                    if payout != "no payout":
-                        if payout >= 30.00 and payout <= 500:
-                            if debt_EBITDA < 0:
-                                if roe > 15:
-                                    if cagr > pl:
-                                        print(row)
-                            elif debt_EBITDA < 3:
-                                if roic > 15:
-                                    if cagr > ev_ebit:
-                                        print(row)
+                #replace empty cells with NO_DATA
+                for stock in current_stocks:
+                    for key, value in stock.items():
+                        if value == "-":
+                            stock[key] = NO_DATA
+
+                current_stocks_sorted = sorted(current_stocks, key=lambda row: float(row['pl']))
+                print()
+                for item in current_stocks_sorted:
+                    print (item['company'], end=' ')
+                    print(item['pl'])
+
+
+                current_segment = row['segment']
+
+                
+
+                current_stocks.clear()
+                current_stocks.append(row)
+                print()
         except ValueError:
             # Skip rows with invalid numbers
+            print('VALUE ERROR')
             continue
