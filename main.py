@@ -55,9 +55,23 @@ while get_next_URL:
     if old_page_stocks == current_page_stocks or old_page_stocks + "#" == current_page_stocks:
         get_next_URL = False
 
+
+'''stocks_data = [{
+                "name": "ITAUSA",
+                "URL": "https://investidor10.com.br/acoes/itsa4/"
+            }]'''
+
 with open("stocks_data.csv", 'w') as csv_output:
     csv_writer = csv.writer(csv_output, delimiter=",")
-    fieldnames = ["company", "liquidity", "sector", "segment", "profit_last_year", "profit_2y", "profit_3y", "payout", "divida_EBITDA", "roe", "roic", "pl", "ev_ebit", "cagr", "pvp", "dy"]
+    fieldnames = ["company", "liquidity", "sector", "segment", "profit_last_year", "profit_2y", "profit_3y", "payout (%)", 
+                  "divida_EBITDA", "divida_EBITDA_1y", "divida_EBITDA_2y", "divida_EBITDA_3y", "divida_EBITDA_4y", "divida_EBITDA_5y", 
+                  "roe (%)", "roe_1y (%)", "roe_2y (%)", "roe_3y (%)", "roe_4y (%)", "roe_5y (%)",
+                  "roic (%)", 
+                  "pl", "pl_1y", "pl_2y", "pl_3y", "pl_4y", "pl_5y", 
+                  "ev_ebit",
+                  "cagr (%)", "cagr_1y (%)", "cagr_2y (%)", "cagr_3y (%)", "cagr_4y (%)", "cagr_5y (%)", 
+                  "pvp", "pvp_1y", "pvp_2y", "pvp_3y", "pvp_4y", "pvp_5y", 
+                  "dy (%)",]
     writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
     writer.writeheader()
 
@@ -74,15 +88,41 @@ with open("stocks_data.csv", 'w') as csv_output:
         payout = "-"
         year_beginning = 0
         debt_EBITDA = '-'
+        debt_EBITDA_1y = '-'
+        debt_EBITDA_2y = '-'
+        debt_EBITDA_3y = '-'
+        debt_EBITDA_4y = '-'
+        debt_EBITDA_5y = '-'
         roe = '-'
+        roe_1y = '-'
+        roe_2y = '-'
+        roe_3y = '-'
+        roe_4y = '-'
+        roe_5y = '-'
         roic = '-'
         pl = '-'
+        pl_1y = '-'
+        pl_2y = '-'
+        pl_3y = '-'
+        pl_4y = '-'
+        pl_5y = '-'
         ev_ebit = '-'
         cagr = '-'
+        cagr_1y = '-'
+        cagr_2y = '-'
+        cagr_3y = '-'
+        cagr_4y = '-'
+        cagr_5y = '-'
         pvp = '-'
+        pvp_1y = '-'
+        pvp_2y = '-'
+        pvp_3y = '-'
+        pvp_4y = '-'
+        pvp_5y = '-'
         dy = '-'
 
         driver.get(stock["URL"])
+
 
         try:
             WebDriverWait(driver, 30).until(
@@ -97,9 +137,9 @@ with open("stocks_data.csv", 'w') as csv_output:
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"results_table"))
             ) 
-            '''WebDriverWait(driver, 30).until(
+            WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"table-indicators-history"))
-            ) ''' 
+            )
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"table-indicators"))
             )  
@@ -131,7 +171,7 @@ with open("stocks_data.csv", 'w') as csv_output:
                     print(year_beginning)
                     
 
-            #filter out companies before 
+            #filter out companies before LIMIT_YEAR
             if year_beginning < LIMIT_YEAR:
                 #find liquidity, sector and segment
                 for cell in info_arr:
@@ -140,7 +180,7 @@ with open("stocks_data.csv", 'w') as csv_output:
                         liquidity_detailed = liquidity_element.find_element(By.CLASS_NAME, "detail-value")
                         liquidity = liquidity_detailed.get_attribute("textContent").strip()
                         #remove "R$ " substring from liquidity
-                        liquidity = liquidity[3:]
+                        liquidity = liquidity[3:].replace('.','')
                         print("liquidity: ", end='')
                         print(liquidity)
                     elif cell.find_element(By.CLASS_NAME, "title").text == "Setor":
@@ -163,38 +203,148 @@ with open("stocks_data.csv", 'w') as csv_output:
                     table_balance_results_tbody_lines = table_balance_results_tbody.find_elements(By.XPATH, "./*")
                     for item in table_balance_results_tbody_lines:
                         values = item.find_elements(By.CLASS_NAME, "column-value")
-                        if (values[0].text == "Lucro Bruto - (R$)"):
+                        if (values[0].text == "Lucro Líquido - (R$)"):
                             profit_last_year_el = values[2].find_element(By.CLASS_NAME, "detail-value")
-                            profit_last_year = profit_last_year_el.get_attribute("textContent")
+                            profit_last_year = profit_last_year_el.get_attribute("textContent").replace('.','')
                             print("profit last year: ", end='')
                             print(profit_last_year)
 
                             profit_2y_el = values[3].find_element(By.CLASS_NAME, "detail-value")
-                            profit_2y = profit_2y_el.get_attribute("textContent")
+                            profit_2y = profit_2y_el.get_attribute("textContent").replace('.','')
                             print("profit 2 years ago: ", end='')
                             print(profit_2y)
 
                             profit_3y_el = values[4].find_element(By.CLASS_NAME, "detail-value")
-                            profit_3y = profit_3y_el.get_attribute("textContent")
+                            profit_3y = profit_3y_el.get_attribute("textContent").replace('.','')
                             print("profit 3 years ago: ", end='')
                             print(profit_3y)
                 else:
                     print ("no")
 
 
-                #find payout
-                '''table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
+                #history indicators
+                table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
                 table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
                 table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
                 table_indicators_history_tbody_lines.pop(0)
                 for item in table_indicators_history_tbody_lines:
                     indicator = item.find_element(By.CLASS_NAME, "indicator")
-
-                    if "PAYOUT" in indicator.get_attribute("textContent"):
-                        payout_values = item.find_elements(By.CLASS_NAME, "value")
-                        payout = payout_values[0].get_attribute("textContent")
-                        print("payout: ", end='')
-                        print(payout)'''
+                    if "P/L" in indicator.get_attribute("textContent"):
+                        pl_values = item.find_elements(By.CLASS_NAME, "value")
+                        try:
+                            pl_1y = pl_values[1].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pl_2y = pl_values[2].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pl_3y = pl_values[3].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pl_4y = pl_values[4].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pl_5y = pl_values[5].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        print("P/L history: "  + pl_1y + ' ' + pl_2y + ' ' + pl_3y + ' ' + pl_4y + ' ' + pl_5y)
+                    elif "P/VP" in indicator.get_attribute("textContent"):
+                        pvp_values = item.find_elements(By.CLASS_NAME, "value")
+                        try:
+                            pvp_1y = pvp_values[1].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pvp_2y = pvp_values[2].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pvp_3y = pvp_values[3].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pvp_4y = pvp_values[4].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            pvp_5y = pvp_values[5].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        print("P/VP history: "  + pvp_1y + ' ' + pvp_2y + ' ' + pvp_3y + ' ' + pvp_4y + ' ' + pvp_5y)
+                    elif "ROE" in indicator.get_attribute("textContent"):
+                        roe_values = item.find_elements(By.CLASS_NAME, "value")
+                        try:
+                            roe_1y = roe_values[1].get_attribute("textContent").replace(',','.').replace('%','')
+                        except IndexError:
+                            continue
+                        try:
+                            roe_2y = roe_values[2].get_attribute("textContent").replace(',','.').replace('%','')
+                        except IndexError:
+                            continue
+                        try:
+                            roe_3y = roe_values[3].get_attribute("textContent").replace(',','.').replace('%','')
+                        except IndexError:
+                            continue
+                        try:
+                            roe_4y = roe_values[4].get_attribute("textContent").replace(',','.').replace('%','')
+                        except IndexError:
+                            continue
+                        try:
+                            roe_5y = roe_values[5].get_attribute("textContent").replace(',','.').replace('%','')
+                        except IndexError:
+                            continue
+                        print("ROE history: "  + roe_1y + ' ' + roe_2y + ' ' + roe_3y + ' ' + roe_4y + ' ' + roe_5y)
+                    elif "DÍVIDA LÍQUIDA / EBITDA" in indicator.get_attribute("textContent"):
+                        debt_EBITDA_values = item.find_elements(By.CLASS_NAME, "value")
+                        try:
+                            debt_EBITDA_1y = debt_EBITDA_values[1].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            debt_EBITDA_2y = debt_EBITDA_values[2].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            debt_EBITDA_3y = debt_EBITDA_values[3].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            debt_EBITDA_4y = debt_EBITDA_values[4].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        try:
+                            debt_EBITDA_5y = debt_EBITDA_values[5].get_attribute("textContent").replace(',','.')
+                        except IndexError:
+                            continue
+                        print("debt EBITDA history: "  + debt_EBITDA_1y + ' ' + debt_EBITDA_2y + ' ' + debt_EBITDA_3y + ' ' + debt_EBITDA_4y + ' ' + debt_EBITDA_5y)
+                    elif "CAGR LUCROS" in indicator.get_attribute("textContent"):
+                        cagr_values = item.find_elements(By.CLASS_NAME, "value")
+                        try:
+                            cagr_1y = cagr_values[1].get_attribute("textContent").replace(',','.').replace('%','')     
+                        except IndexError:
+                            continue
+                        try:
+                            cagr_2y = cagr_values[2].get_attribute("textContent").replace(',','.').replace('%','')           
+                        except IndexError:
+                            continue
+                        try:
+                            cagr_3y = cagr_values[3].get_attribute("textContent").replace(',','.').replace('%','')           
+                        except IndexError:
+                            continue
+                        try:
+                            cagr_4y = cagr_values[4].get_attribute("textContent").replace(',','.').replace('%','')           
+                        except IndexError:
+                            continue
+                        try:
+                            cagr_5y = cagr_values[5].get_attribute("textContent").replace(',','.').replace('%','')           
+                        except IndexError:
+                            continue
+                        print("CAGR history: "  + cagr_1y + ' ' + cagr_2y + ' ' + cagr_3y + ' ' + cagr_4y + ' ' + cagr_5y)
+                    
                 
                 #find indicators
                 fundamentalist_indicators = driver.find_element(By.ID, "table-indicators")
@@ -238,29 +388,53 @@ with open("stocks_data.csv", 'w') as csv_output:
                         print("DY: ",end='')
                         print(dy)
 
-
-
-
-                writer.writerow({"company": stock["name"], 
+                row_to_write = {"company": stock["name"], 
                                 "liquidity": liquidity, 
                                 "sector": sector,
                                 "segment": segment,
                                 "profit_last_year": profit_last_year, 
                                 "profit_2y": profit_2y, 
                                 "profit_3y": profit_3y,
-                                "payout": payout,
+                                "payout (%)": payout,
                                 "divida_EBITDA": debt_EBITDA,
-                                "roe": roe,
-                                "roic": roic, 
+                                "divida_EBITDA_1y": debt_EBITDA_1y,
+                                "divida_EBITDA_2y": debt_EBITDA_2y,
+                                "divida_EBITDA_3y": debt_EBITDA_3y,
+                                "divida_EBITDA_4y": debt_EBITDA_4y,
+                                "divida_EBITDA_5y": debt_EBITDA_5y,
+                                "roe (%)": roe,
+                                "roe_1y (%)": roe_1y,
+                                "roe_2y (%)": roe_2y,
+                                "roe_3y (%)": roe_3y,
+                                "roe_4y (%)": roe_4y,
+                                "roe_5y (%)": roe_5y,
+                                "roic (%)": roic, 
                                 "pl": pl, 
+                                "pl_1y": pl_1y,
+                                "pl_2y": pl_2y,
+                                "pl_3y": pl_3y,
+                                "pl_4y": pl_4y,
+                                "pl_5y": pl_5y,
                                 "ev_ebit": ev_ebit, 
-                                "cagr": cagr,
+                                "cagr (%)": cagr,
+                                "cagr_1y (%)": cagr_1y,
+                                "cagr_2y (%)": cagr_2y,
+                                "cagr_3y (%)": cagr_3y,
+                                "cagr_4y (%)": cagr_4y,
+                                "cagr_5y (%)": cagr_5y,
                                 "pvp": pvp,
-                                "dy": dy
-                                })
+                                "pvp_1y": pvp_1y,
+                                "pvp_2y": pvp_2y,
+                                "pvp_3y": pvp_3y,
+                                "pvp_4y": pvp_4y,
+                                "pvp_5y": pvp_5y,
+                                "dy (%)": dy
+                                }
+                writer.writerow(row_to_write)
+                print("row to write: ")
+                print (row_to_write)
 
 print()
 print("end")
-time.sleep(3)
 
 driver.quit()
