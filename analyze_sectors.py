@@ -2,6 +2,146 @@ import csv
 
 NO_DATA = -999999
 
+def find_avg_cagr(stock):
+    #print(stock['company'])
+    cagr_sum = 0
+    cagr_terms = 0
+    if stock['cagr (%)'] != NO_DATA:
+        cagr_sum += float(stock['cagr (%)'])
+        cagr_terms += 1
+    if stock['cagr_1y (%)'] != NO_DATA:
+        cagr_sum += float(stock['cagr_1y (%)'])
+        cagr_terms += 1
+    if stock['cagr_2y (%)'] != NO_DATA:
+        cagr_sum += float(stock['cagr_2y (%)'])
+        cagr_terms += 1
+    if stock['cagr_3y (%)'] != NO_DATA:
+        cagr_sum += float(stock['cagr_3y (%)'])
+        cagr_terms += 1
+    if stock['cagr_4y (%)'] != NO_DATA:
+        cagr_sum += float(stock['cagr_4y (%)'])
+        cagr_terms += 1
+    if stock['cagr_5y (%)'] != NO_DATA:
+        cagr_sum += float(stock['cagr_5y (%)'])
+        cagr_terms += 1
+    
+    if cagr_terms != 0:
+        return cagr_sum / cagr_terms
+    else:
+        return NO_DATA
+
+def find_avg_debt_EBITDA(stock):
+    #print(stock['company'])
+    divida_EBITDA_sum = 0
+    divida_EBITDA_terms = 0
+    if stock['divida_EBITDA'] != NO_DATA:
+        divida_EBITDA_sum += float(stock['divida_EBITDA'])
+        divida_EBITDA_terms += 1
+    if stock['divida_EBITDA_1y'] != NO_DATA:
+        divida_EBITDA_sum += float(stock['divida_EBITDA_1y'])
+        divida_EBITDA_terms += 1
+    if stock['divida_EBITDA_2y'] != NO_DATA:
+        divida_EBITDA_sum += float(stock['divida_EBITDA_2y'])
+        divida_EBITDA_terms += 1
+    if stock['divida_EBITDA_3y'] != NO_DATA:
+        divida_EBITDA_sum += float(stock['divida_EBITDA_3y'])
+        divida_EBITDA_terms += 1
+    if stock['divida_EBITDA_4y'] != NO_DATA:
+        divida_EBITDA_sum += float(stock['divida_EBITDA_4y'])
+        divida_EBITDA_terms += 1
+    if stock['divida_EBITDA_5y'] != NO_DATA:
+        divida_EBITDA_sum += float(stock['divida_EBITDA_5y'])
+        divida_EBITDA_terms += 1
+    
+    if divida_EBITDA_terms != 0:
+        return divida_EBITDA_sum / divida_EBITDA_terms
+    else:
+        return NO_DATA
+
+def find_avg_roe(stock):
+    #print(stock['company'])
+    roe_sum = 0
+    roe_terms = 0
+    if stock['roe (%)'] != NO_DATA:
+        roe_sum += float(stock['roe (%)'])
+        roe_terms += 1
+    if stock['roe_1y (%)'] != NO_DATA:
+        roe_sum += float(stock['roe_1y (%)'])
+        roe_terms += 1
+    if stock['roe_2y (%)'] != NO_DATA:
+        roe_sum += float(stock['roe_2y (%)'])
+        roe_terms += 1
+    if stock['roe_3y (%)'] != NO_DATA:
+        roe_sum += float(stock['roe_3y (%)'])
+        roe_terms += 1
+    if stock['roe_4y (%)'] != NO_DATA:
+        roe_sum += float(stock['roe_4y (%)'])
+        roe_terms += 1
+    if stock['roe_5y (%)'] != NO_DATA:
+        roe_sum += float(stock['roe_5y (%)'])
+        roe_terms += 1
+    
+    if roe_terms != 0:
+        return roe_sum / roe_terms
+    else:
+        return NO_DATA
+
+def find_avg_pvp(stock):
+    #print(stock['company'])
+    pvp_sum = 0
+    pvp_terms = 0
+    if stock['pvp'] != NO_DATA:
+        pvp_sum += float(stock['pvp'])
+        pvp_terms += 1
+    if stock['pvp_1y'] != NO_DATA:
+        pvp_sum += float(stock['pvp_1y'])
+        pvp_terms += 1
+    if stock['pvp_2y'] != NO_DATA:
+        pvp_sum += float(stock['pvp_2y'])
+        pvp_terms += 1
+    if stock['pvp_3y'] != NO_DATA:
+        pvp_sum += float(stock['pvp_3y'])
+        pvp_terms += 1
+    if stock['pvp_4y'] != NO_DATA:
+        pvp_sum += float(stock['pvp_4y'])
+        pvp_terms += 1
+    if stock['pvp_5y'] != NO_DATA:
+        pvp_sum += float(stock['pvp_5y'])
+        pvp_terms += 1
+    
+    if pvp_terms != 0:
+        return pvp_sum / pvp_terms
+    else:
+        return NO_DATA
+    
+def find_avg_pl(stock):
+    #print(stock['company'])
+    pl_sum = 0
+    pl_terms = 0
+    if stock['pl'] != NO_DATA:
+        pl_sum += float(stock['pl'])
+        pl_terms += 1
+    if stock['pl_1y'] != NO_DATA:
+        pl_sum += float(stock['pl_1y'])
+        pl_terms += 1
+    if stock['pl_2y'] != NO_DATA:
+        pl_sum += float(stock['pl_2y'])
+        pl_terms += 1
+    if stock['pl_3y'] != NO_DATA:
+        pl_sum += float(stock['pl_3y'])
+        pl_terms += 1
+    if stock['pl_4y'] != NO_DATA:
+        pl_sum += float(stock['pl_4y'])
+        pl_terms += 1
+    if stock['pl_5y'] != NO_DATA:
+        pl_sum += float(stock['pl_5y'])
+        pl_terms += 1
+    
+    if pl_terms != 0:
+        return pl_sum / pl_terms
+    else:
+        return NO_DATA
+
 def rank_stocks(max_score, stock_list, stocks_scores, key):
     score = max_score
     for item in stock_list:
@@ -23,6 +163,17 @@ def sort_by(stock_list, key):
 
 def analyze_set(current_stocks, current_segment):
     print(current_segment)
+    segment_avg_pl = 0
+    count_pl = 0
+    segment_avg_pvp = 0
+    count_pvp = 0
+    segment_avg_roe = 0
+    count_roe = 0
+    segment_avg_debt_EBITDA = 0
+    count_debt_EBITDA = 0
+    segment_avg_cagr = 0
+    count_cagr = 0
+
 
     max_score = len(current_stocks)
     stocks_scores = []
@@ -33,13 +184,64 @@ def analyze_set(current_stocks, current_segment):
                 "score": 0
             }
         )
-    
-    #replace empty cells with NO_DATA
-    for stock in current_stocks:
+        #replace empty cells with NO_DATA
         for key, value in stock.items():
             if value == "-":
                 #print("aaaaaaaaaaaaaaa")
                 stock[key] = NO_DATA
+        avg_pl = find_avg_pl(stock)
+        #print('avg_pl: ', end='')
+        #print(avg_pl)
+        if avg_pl != NO_DATA:
+            segment_avg_pl += avg_pl
+            count_pl += 1
+        avg_pvp = find_avg_pvp(stock)
+        #print('avg_pvp: ', end='')
+        #print(avg_pvp)
+        if avg_pvp != NO_DATA:
+            segment_avg_pvp += avg_pvp
+            count_pvp += 1
+        avg_roe = find_avg_roe(stock)
+        #print('avg_roe: ', end='')
+        #print(avg_roe)
+        if avg_roe != NO_DATA:
+            segment_avg_roe += avg_roe
+            count_roe += 1
+        avg_debt_EBITDA = find_avg_debt_EBITDA(stock)
+        #print('avg_debt_EBITDA: ', end='')
+        #print(avg_debt_EBITDA)
+        if avg_debt_EBITDA != NO_DATA:
+            segment_avg_debt_EBITDA += avg_debt_EBITDA
+            count_debt_EBITDA += 1
+        avg_cagr = find_avg_cagr(stock)
+        #print('avg_cagr: ', end='')
+        #print(avg_cagr)
+        if avg_cagr != NO_DATA:
+            segment_avg_cagr += avg_cagr
+            count_cagr += 1
+
+    if count_pl != 0:
+        segment_avg_pl /= count_pl
+    if count_pvp != 0:
+        segment_avg_pvp /= count_pvp
+    if count_roe != 0:
+        segment_avg_roe /= count_roe
+    if count_debt_EBITDA != 0:
+        segment_avg_debt_EBITDA /= count_debt_EBITDA
+    if count_cagr != 0:
+        segment_avg_cagr /= count_cagr
+
+
+    print('average pl: ', end='')
+    print(segment_avg_pl)
+    print('average pvp: ', end='')
+    print(segment_avg_pvp)
+    print('average roe: ', end='')
+    print(segment_avg_roe)
+    print('average debt_EBITDA: ', end='')
+    print(segment_avg_debt_EBITDA)
+    print('average cagr: ', end='')
+    print(segment_avg_cagr)
 
     #print('pl: ')
     current_stocks_sorted = sort_by(current_stocks, 'pl')
@@ -50,9 +252,9 @@ def analyze_set(current_stocks, current_segment):
     rank_stocks(max_score, current_stocks_sorted, stocks_scores, 'pvp')
 
     #print('roe: ')
-    current_stocks_sorted = sort_by(current_stocks, 'roe')
+    current_stocks_sorted = sort_by(current_stocks, 'roe (%)')
     current_stocks_sorted.reverse()
-    rank_stocks(max_score, current_stocks_sorted, stocks_scores, 'roe')
+    rank_stocks(max_score, current_stocks_sorted, stocks_scores, 'roe (%)')
 
     #print('divida EBITDA: ')
     current_stocks_sorted = sort_by(current_stocks, 'divida_EBITDA')
@@ -60,9 +262,9 @@ def analyze_set(current_stocks, current_segment):
 
 
     #print('cagr: ')
-    current_stocks_sorted = sort_by(current_stocks, 'cagr')
+    current_stocks_sorted = sort_by(current_stocks, 'cagr (%)')
     current_stocks_sorted.reverse()
-    rank_stocks(max_score, current_stocks_sorted, stocks_scores, 'cagr')
+    rank_stocks(max_score, current_stocks_sorted, stocks_scores, 'cagr (%)')
 
     stocks_scores_sorted = sorted(stocks_scores, key=lambda row: float(row['score']))
     stocks_scores_sorted.reverse()
@@ -93,7 +295,7 @@ with open("stocks_data.csv", 'r') as csvfile:
     for row in rows_to_remove:
         sorted_rows.remove(row)
 
-#store sorted data
+#store sorted and filtered data
 with open("stocks_data_segment.csv", 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=reader.fieldnames)
     writer.writeheader()
@@ -106,8 +308,7 @@ with open("stocks_data_segment.csv", 'r') as csvfile:
     current_segment = rows[0]['segment']
     #print(current_segment)
     for row in rows:
-        try:
-            #filter out liquidity < 3M, 
+        try: 
             if row['segment'] == current_segment:
                 current_stocks.append(row)
             else: 
