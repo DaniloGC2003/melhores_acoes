@@ -63,10 +63,14 @@ while get_next_URL:
 
 with open("stocks_data.csv", 'w') as csv_output:
     csv_writer = csv.writer(csv_output, delimiter=",")
-    fieldnames = ["company", "liquidity", "sector", "segment", "profit_last_year", "profit_2y", "profit_3y", "payout (%)", 
+    fieldnames = ["company", "current_price", "liquidity", "sector", "segment", 
+                  "profit_last_year", "profit_2y", "profit_3y", "profit_4y", "profit_5y",
+                  "payout (%)", 
                   "divida_EBITDA", "divida_EBITDA_1y", "divida_EBITDA_2y", "divida_EBITDA_3y", "divida_EBITDA_4y", "divida_EBITDA_5y", 
                   "roe (%)", "roe_1y (%)", "roe_2y (%)", "roe_3y (%)", "roe_4y (%)", "roe_5y (%)",
                   "roic (%)", 
+                  "vpa",
+                  "lpa",
                   "pl", "pl_1y", "pl_2y", "pl_3y", "pl_4y", "pl_5y", 
                   "ev_ebit",
                   "cagr (%)", "cagr_1y (%)", "cagr_2y (%)", "cagr_3y (%)", "cagr_4y (%)", "cagr_5y (%)", 
@@ -79,12 +83,15 @@ with open("stocks_data.csv", 'w') as csv_output:
     for stock in stocks_data:#go through each URL and fill up .csv file
         skip_stock = False
 
+        current_price = "-"
         liquidity = "-"
         sector = "-"
         segment = "-"
         profit_last_year = "-"
         profit_2y = "-"
         profit_3y = "-"
+        profit_4y = "-"
+        profit_5y = "-"
         payout = "-"
         year_beginning = 0
         debt_EBITDA = '-'
@@ -100,6 +107,8 @@ with open("stocks_data.csv", 'w') as csv_output:
         roe_4y = '-'
         roe_5y = '-'
         roic = '-'
+        vpa = '-'
+        lpa = '-'
         pl = '-'
         pl_1y = '-'
         pl_2y = '-'
@@ -143,6 +152,9 @@ with open("stocks_data.csv", 'w') as csv_output:
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.ID,"table-indicators"))
             )  
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.ID, "cards-ticker"))
+            )  
         except TimeoutException:
             print("at least one element not found by the driver")
             skip_stock = True
@@ -173,6 +185,16 @@ with open("stocks_data.csv", 'w') as csv_output:
 
             #filter out companies before LIMIT_YEAR
             if year_beginning < LIMIT_YEAR:
+                #find current price
+                card_cotacao = driver.find_element(By.ID, "cards-ticker").find_elements(By.XPATH, "./*")[0]
+                card_cotacao_body = card_cotacao.find_element(By.CLASS_NAME, "_card-body")
+                current_price = card_cotacao_body.find_element(By.XPATH, "./div").get_attribute("textContent")
+                if current_price != '-':
+                    current_price = current_price.replace(',','.').replace(' ', '').replace('\n','')[2:]
+                print('current price: ', end='')
+                print(current_price)
+
+
                 #find liquidity, sector and segment
                 for cell in info_arr:
                     if cell.find_element(By.CLASS_NAME, "title").text == "Liquidez Média Diária":
@@ -218,6 +240,16 @@ with open("stocks_data.csv", 'w') as csv_output:
                             profit_3y = profit_3y_el.get_attribute("textContent").replace('.','')
                             print("profit 3 years ago: ", end='')
                             print(profit_3y)
+
+                            profit_4y_el = values[5].find_element(By.CLASS_NAME, "detail-value")
+                            profit_4y = profit_4y_el.get_attribute("textContent").replace('.','')
+                            print("profit 4 years ago: ", end='')
+                            print(profit_4y)
+
+                            profit_5y_el = values[6].find_element(By.CLASS_NAME, "detail-value")
+                            profit_5y = profit_5y_el.get_attribute("textContent").replace('.','')
+                            print("profit 5 years ago: ", end='')
+                            print(profit_5y)
                 else:
                     print ("no")
 
@@ -387,14 +419,25 @@ with open("stocks_data.csv", 'w') as csv_output:
                         dy = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
                         print("DY: ",end='')
                         print(dy)
+                    elif cell_fields[0].get_attribute("textContent") == "LPA ":
+                        lpa = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("LPA: ",end='')
+                        print(lpa)
+                    elif cell_fields[0].get_attribute("textContent") == "VPA ":
+                        vpa = cell_fields[1].find_element(By.XPATH, "./*").get_attribute("textContent").replace('.', '').replace(',', '.').replace('\t','').replace(' ', '').replace('%','').replace('\n','')
+                        print("VPA: ",end='')
+                        print(vpa)
 
                 row_to_write = {"company": stock["name"], 
+                                "current_price": current_price,
                                 "liquidity": liquidity, 
                                 "sector": sector,
                                 "segment": segment,
                                 "profit_last_year": profit_last_year, 
                                 "profit_2y": profit_2y, 
                                 "profit_3y": profit_3y,
+                                "profit_4y": profit_4y,
+                                "profit_5y": profit_5y,
                                 "payout (%)": payout,
                                 "divida_EBITDA": debt_EBITDA,
                                 "divida_EBITDA_1y": debt_EBITDA_1y,
@@ -409,6 +452,8 @@ with open("stocks_data.csv", 'w') as csv_output:
                                 "roe_4y (%)": roe_4y,
                                 "roe_5y (%)": roe_5y,
                                 "roic (%)": roic, 
+                                "vpa": vpa,
+                                "lpa": lpa,
                                 "pl": pl, 
                                 "pl_1y": pl_1y,
                                 "pl_2y": pl_2y,
@@ -433,6 +478,12 @@ with open("stocks_data.csv", 'w') as csv_output:
                 writer.writerow(row_to_write)
                 print("row to write: ")
                 print (row_to_write)
+            else:
+                print("year of beginning is too recent")
+                print(year_beginning)
+                print(stock["name"])
+                print(stock["URL"])
+                continue
 
 print()
 print("end")

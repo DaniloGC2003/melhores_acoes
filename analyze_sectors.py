@@ -1,4 +1,5 @@
 import csv
+import math
 
 NO_DATA = -999999
 
@@ -142,6 +143,8 @@ def find_avg_pl(stock):
     else:
         return NO_DATA
 
+#rank stocks by the key column
+#the first stock in the list gets the highest score, the last one the lowest
 def rank_stocks(max_score, stock_list, stocks_scores, key):
     score = max_score
     for item in stock_list:
@@ -174,21 +177,23 @@ def analyze_set(current_stocks, current_segment):
     segment_avg_cagr = 0
     count_cagr = 0
 
-
     max_score = len(current_stocks)
     stocks_scores = []
     for stock in current_stocks:
+        #create a list of stocks with their scores
         stocks_scores.append(
             {
                 "name": stock['company'],
-                "score": 0
+                "score": 0,
+                "segment": stock['segment'],
             }
         )
         #replace empty cells with NO_DATA
         for key, value in stock.items():
             if value == "-":
-                #print("aaaaaaaaaaaaaaa")
                 stock[key] = NO_DATA
+
+        #find average values for each indicator
         avg_pl = find_avg_pl(stock)
         #print('avg_pl: ', end='')
         #print(avg_pl)
@@ -219,7 +224,6 @@ def analyze_set(current_stocks, current_segment):
         if avg_cagr != NO_DATA:
             segment_avg_cagr += avg_cagr
             count_cagr += 1
-
     if count_pl != 0:
         segment_avg_pl /= count_pl
     if count_pvp != 0:
@@ -232,7 +236,7 @@ def analyze_set(current_stocks, current_segment):
         segment_avg_cagr /= count_cagr
 
 
-    print('average pl: ', end='')
+    '''print('average pl: ', end='')
     print(segment_avg_pl)
     print('average pvp: ', end='')
     print(segment_avg_pvp)
@@ -241,8 +245,10 @@ def analyze_set(current_stocks, current_segment):
     print('average debt_EBITDA: ', end='')
     print(segment_avg_debt_EBITDA)
     print('average cagr: ', end='')
-    print(segment_avg_cagr)
+    print(segment_avg_cagr)'''
 
+
+    
     #print('pl: ')
     current_stocks_sorted = sort_by(current_stocks, 'pl')
     rank_stocks(max_score, current_stocks_sorted, stocks_scores, 'pl')
@@ -260,7 +266,6 @@ def analyze_set(current_stocks, current_segment):
     current_stocks_sorted = sort_by(current_stocks, 'divida_EBITDA')
     rank_stocks(max_score, current_stocks_sorted, stocks_scores, 'divida_EBITDA')
 
-
     #print('cagr: ')
     current_stocks_sorted = sort_by(current_stocks, 'cagr (%)')
     current_stocks_sorted.reverse()
@@ -268,15 +273,38 @@ def analyze_set(current_stocks, current_segment):
 
     stocks_scores_sorted = sorted(stocks_scores, key=lambda row: float(row['score']))
     stocks_scores_sorted.reverse()
+
+    stocks_first_in_segment.append(stocks_scores_sorted[0])
     print('final score: ')
     for stock in stocks_scores_sorted:
         print(stock['name'], end=' ')
         print(stock['score'])
+    #print('best stocks: ')
+    #see how many indicators are above average for each stock
+    for stock in current_stocks_sorted:
+        above_average_indicators = 0
+        if (float(stock['pl']) < segment_avg_pl):
+            above_average_indicators += 1
+        if (float(stock['pvp']) < segment_avg_pvp):
+            above_average_indicators += 1
+        if (float(stock['roe (%)']) > segment_avg_roe):
+            above_average_indicators += 1
+        if (float(stock['divida_EBITDA']) < segment_avg_debt_EBITDA):   
+            above_average_indicators += 1
+        if (float(stock['cagr (%)']) > segment_avg_cagr):
+            above_average_indicators += 1
+        if (above_average_indicators >= 5):
+            #print(stock['company'])
+            stocks_above_avg_indicators.append(stock)
 
     print()
 
 sorted_rows = []
 reader = []
+
+stocks_above_avg_indicators = []
+stocks_first_in_segment = []
+
 
 #read data from output file and sort by sector and segment
 with open("stocks_data.csv", 'r') as csvfile:
@@ -287,12 +315,21 @@ with open("stocks_data.csv", 'r') as csvfile:
     for row in sorted_rows:
         #print(row['company'] + ' ' + row['liquidity'])
         liq = row['liquidity'].replace('.', '')
+        profit_last_year = row['profit_last_year']
+        profit_2y = row['profit_2y']
+        profit_3y = row['profit_3y']
+        profit_4y = row['profit_4y']
+        profit_5y = row['profit_5y']
+        current_price = row['current_price']
+        #graham = math.sqrt(float(row['lpa']) * float(row['vpa']) * 22.5)
         if liq != "-":
-           if float(liq) < 3000000:
+           if float(liq) < 3000000 or float(profit_last_year) < 0 or float(profit_2y) < 0 or float(profit_3y) < 0 or float(profit_4y) < 0 or float(profit_5y) < 0 or float(graham) < float(current_price):
                 rows_to_remove.append(row)
                 #print("weima")
                 #print(row['company'] + ' ' + row['liquidity'])
+    print('rows to remove: ')
     for row in rows_to_remove:
+        print(row['company'])
         sorted_rows.remove(row)
 
 #store sorted and filtered data
@@ -306,7 +343,6 @@ with open("stocks_data_segment.csv", 'r') as csvfile:
     rows = list(reader)
     current_stocks = []
     current_segment = rows[0]['segment']
-    #print(current_segment)
     for row in rows:
         try: 
             if row['segment'] == current_segment:
@@ -314,8 +350,6 @@ with open("stocks_data_segment.csv", 'r') as csvfile:
             else: 
                 analyze_set(current_stocks, current_segment)
                 current_segment = row['segment']
-
-                
 
                 current_stocks.clear()
                 current_stocks.append(row)
@@ -325,3 +359,13 @@ with open("stocks_data_segment.csv", 'r') as csvfile:
             print('VALUE ERROR')
             continue
     analyze_set(current_stocks, current_segment)
+
+print('above average indicators: ')
+for stock in stocks_above_avg_indicators:
+    print(stock['company'])
+print()
+print('first in segment: ')
+for stock in stocks_first_in_segment:
+    print(stock['name'], end='\t\t\t\t\t')
+    print(stock['segment'])
+    
