@@ -1,5 +1,5 @@
 import csv
-import math
+from math import *
 
 NO_DATA = -999999
 
@@ -323,7 +323,7 @@ with open("stocks_data.csv", 'r') as csvfile:
         current_price = row['current_price']
         #graham = math.sqrt(float(row['lpa']) * float(row['vpa']) * 22.5)
         if liq != "-":
-           if float(liq) < 3000000 or float(profit_last_year) < 0 or float(profit_2y) < 0 or float(profit_3y) < 0 or float(profit_4y) < 0 or float(profit_5y) < 0 or float(graham) < float(current_price):
+           if float(liq) < 3000000 or float(profit_last_year) < 0 or float(profit_2y) < 0 or float(profit_3y) < 0 or float(profit_4y) < 0 or float(profit_5y) < 0:
                 rows_to_remove.append(row)
                 #print("weima")
                 #print(row['company'] + ' ' + row['liquidity'])
@@ -369,3 +369,30 @@ for stock in stocks_first_in_segment:
     print(stock['name'], end='\t\t\t\t\t')
     print(stock['segment'])
     
+print()
+
+#compare stocks from all segments
+with open("stocks_data_segment.csv", 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
+    rows = list(reader)
+    rows_to_remove = []
+    for row in rows:
+        for key, value in row.items():
+            if value == "-":
+                row[key] = NO_DATA
+        if row['sector'] == 'Financeiro':
+            rows_to_remove.append(row)
+        #elif float(row['liquidity']) < 3000000 or float(row['profit_last_year']) < 0 or float(row['profit_2y']) < 0 or float(row['profit_3y']) < 0 or float(row['profit_4y']) < 0 or float(row['profit_5y']) < 0:
+        elif float(row['profit_last_year']) < 0 or float(row['profit_2y']) < 0 or float(row['profit_3y']) < 0 or float(row['profit_4y']) < 0 or float(row['profit_5y']) < 0:
+            rows_to_remove.append(row)
+        elif float(row['cagr (%)']) < 10:
+            rows_to_remove.append(row)
+        elif float(row['roe (%)']) < 10:
+            rows_to_remove.append(row)
+        #elif sqrt(float(row['lpa']) * float(row['vpa']) * 22.5) < float(row['current_price']):
+        #    rows_to_remove.append(row)
+    for row in rows_to_remove:
+        rows.remove(row)
+    for row in rows:
+        print(row['company'])
+    #analyze_set(rows, "all segments except for banks")        

@@ -9,7 +9,7 @@ P/VP
 Dividend Yield
 - Dividendos por ação / preço da ação
 - maior, melhor
-
+ 
 Return on equity (ROE)
 - retorno sobre patrimônio líquido
 - maior, melhor
