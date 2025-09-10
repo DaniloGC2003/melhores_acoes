@@ -277,127 +277,133 @@ with open("stocks_data.csv", 'w') as csv_output:
 
                 #history indicators
                 table_indicators_history = driver.find_element(By.ID, "table-indicators-history")
-                table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
-                table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
-                table_indicators_history_tbody_lines.pop(0)
-                for item in table_indicators_history_tbody_lines:
-                    indicator = item.find_element(By.CLASS_NAME, "indicator")
-                    if "P/L" in indicator.get_attribute("textContent"):
-                        pl_values = item.find_elements(By.CLASS_NAME, "value")
-                        try:
-                            pl_1y = pl_values[1].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            pl_2y = pl_values[2].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            pl_3y = pl_values[3].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        '''try:
-                            pl_4y = pl_values[4].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            pl_5y = pl_values[5].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue'''
-                        print("P/L history: "  + pl_1y + ' ' + pl_2y + ' ' + pl_3y + ' ' + pl_4y + ' ' + pl_5y)
-                    elif "P/VP" in indicator.get_attribute("textContent"):
-                        pvp_values = item.find_elements(By.CLASS_NAME, "value")
-                        try:
-                            pvp_1y = pvp_values[1].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            pvp_2y = pvp_values[2].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            pvp_3y = pvp_values[3].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        ''' try:
-                            pvp_4y = pvp_values[4].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            pvp_5y = pvp_values[5].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue'''
-                        print("P/VP history: "  + pvp_1y + ' ' + pvp_2y + ' ' + pvp_3y + ' ' + pvp_4y + ' ' + pvp_5y)
-                    elif "ROE" in indicator.get_attribute("textContent"):
-                        roe_values = item.find_elements(By.CLASS_NAME, "value")
-                        try:
-                            roe_1y = roe_values[1].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
-                        except IndexError:
-                            continue
-                        try:
-                            roe_2y = roe_values[2].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
-                        except IndexError:
-                            continue
-                        try:
-                            roe_3y = roe_values[3].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
-                        except IndexError:
-                            continue
-                        '''try:
-                            roe_4y = roe_values[4].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
-                        except IndexError:
-                            continue
-                        try:
-                            roe_5y = roe_values[5].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
-                        except IndexError:
-                            continue'''
-                        print("ROE history: "  + roe_1y + ' ' + roe_2y + ' ' + roe_3y + ' ' + roe_4y + ' ' + roe_5y)
-                    elif "DÍVIDA LÍQUIDA / EBITDA" in indicator.get_attribute("textContent"):
-                        debt_EBITDA_values = item.find_elements(By.CLASS_NAME, "value")
-                        try:
-                            debt_EBITDA_1y = debt_EBITDA_values[1].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            debt_EBITDA_2y = debt_EBITDA_values[2].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            debt_EBITDA_3y = debt_EBITDA_values[3].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        '''try:
-                            debt_EBITDA_4y = debt_EBITDA_values[4].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue
-                        try:
-                            debt_EBITDA_5y = debt_EBITDA_values[5].get_attribute("textContent").replace('.','').replace(',','.')
-                        except IndexError:
-                            continue'''
-                        print("debt EBITDA history: "  + debt_EBITDA_1y + ' ' + debt_EBITDA_2y + ' ' + debt_EBITDA_3y + ' ' + debt_EBITDA_4y + ' ' + debt_EBITDA_5y)
-                    elif "CAGR LUCROS" in indicator.get_attribute("textContent"):
-                        cagr_values = item.find_elements(By.CLASS_NAME, "value")
-                        try:
-                            cagr_1y = cagr_values[1].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')     
-                        except IndexError:
-                            continue
-                        try:
-                            cagr_2y = cagr_values[2].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
-                        except IndexError:
-                            continue
-                        try:
-                            cagr_3y = cagr_values[3].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
-                        except IndexError:
-                            continue
-                        '''try:
-                            cagr_4y = cagr_values[4].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
-                        except IndexError:
-                            continue
-                        try:
-                            cagr_5y = cagr_values[5].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
-                        except IndexError:
-                            continue'''
-                        print("CAGR history: "  + cagr_1y + ' ' + cagr_2y + ' ' + cagr_3y + ' ' + cagr_4y + ' ' + cagr_5y)
-                    
+                try:
+                    WebDriverWait(driver, 5).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, "basic_info"))
+                    )
+                    table_indicators_history_tbody = table_indicators_history.find_element(By.XPATH, "./*")
+                    table_indicators_history_tbody_lines = table_indicators_history_tbody.find_elements(By.XPATH, "./*")
+                    table_indicators_history_tbody_lines.pop(0)
+                    for item in table_indicators_history_tbody_lines:
+                        indicator = item.find_element(By.CLASS_NAME, "indicator")
+                        if "P/L" in indicator.get_attribute("textContent"):
+                            pl_values = item.find_elements(By.CLASS_NAME, "value")
+                            try:
+                                pl_1y = pl_values[1].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                pl_2y = pl_values[2].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                pl_3y = pl_values[3].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            '''try:
+                                pl_4y = pl_values[4].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                pl_5y = pl_values[5].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue'''
+                            print("P/L history: "  + pl_1y + ' ' + pl_2y + ' ' + pl_3y + ' ' + pl_4y + ' ' + pl_5y)
+                        elif "P/VP" in indicator.get_attribute("textContent"):
+                            pvp_values = item.find_elements(By.CLASS_NAME, "value")
+                            try:
+                                pvp_1y = pvp_values[1].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                pvp_2y = pvp_values[2].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                pvp_3y = pvp_values[3].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            ''' try:
+                                pvp_4y = pvp_values[4].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                pvp_5y = pvp_values[5].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue'''
+                            print("P/VP history: "  + pvp_1y + ' ' + pvp_2y + ' ' + pvp_3y + ' ' + pvp_4y + ' ' + pvp_5y)
+                        elif "ROE" in indicator.get_attribute("textContent"):
+                            roe_values = item.find_elements(By.CLASS_NAME, "value")
+                            try:
+                                roe_1y = roe_values[1].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
+                            except IndexError:
+                                continue
+                            try:
+                                roe_2y = roe_values[2].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
+                            except IndexError:
+                                continue
+                            try:
+                                roe_3y = roe_values[3].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
+                            except IndexError:
+                                continue
+                            '''try:
+                                roe_4y = roe_values[4].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
+                            except IndexError:
+                                continue
+                            try:
+                                roe_5y = roe_values[5].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')
+                            except IndexError:
+                                continue'''
+                            print("ROE history: "  + roe_1y + ' ' + roe_2y + ' ' + roe_3y + ' ' + roe_4y + ' ' + roe_5y)
+                        elif "DÍVIDA LÍQUIDA / EBITDA" in indicator.get_attribute("textContent"):
+                            debt_EBITDA_values = item.find_elements(By.CLASS_NAME, "value")
+                            try:
+                                debt_EBITDA_1y = debt_EBITDA_values[1].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                debt_EBITDA_2y = debt_EBITDA_values[2].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                debt_EBITDA_3y = debt_EBITDA_values[3].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            '''try:
+                                debt_EBITDA_4y = debt_EBITDA_values[4].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue
+                            try:
+                                debt_EBITDA_5y = debt_EBITDA_values[5].get_attribute("textContent").replace('.','').replace(',','.')
+                            except IndexError:
+                                continue'''
+                            print("debt EBITDA history: "  + debt_EBITDA_1y + ' ' + debt_EBITDA_2y + ' ' + debt_EBITDA_3y + ' ' + debt_EBITDA_4y + ' ' + debt_EBITDA_5y)
+                        elif "CAGR LUCROS" in indicator.get_attribute("textContent"):
+                            cagr_values = item.find_elements(By.CLASS_NAME, "value")
+                            try:
+                                cagr_1y = cagr_values[1].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')     
+                            except IndexError:
+                                continue
+                            try:
+                                cagr_2y = cagr_values[2].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
+                            except IndexError:
+                                continue
+                            try:
+                                cagr_3y = cagr_values[3].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
+                            except IndexError:
+                                continue
+                            '''try:
+                                cagr_4y = cagr_values[4].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
+                            except IndexError:
+                                continue
+                            try:
+                                cagr_5y = cagr_values[5].get_attribute("textContent").replace('.','').replace(',','.').replace('%','')           
+                            except IndexError:
+                                continue'''
+                            print("CAGR history: "  + cagr_1y + ' ' + cagr_2y + ' ' + cagr_3y + ' ' + cagr_4y + ' ' + cagr_5y)
+                except TimeoutException:
+                    print("at least one element not found by the driver")
+                
                 
                 #find indicators
                 fundamentalist_indicators = driver.find_element(By.ID, "table-indicators")
